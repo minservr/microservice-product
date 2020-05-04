@@ -1,0 +1,59 @@
+version: '3'
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data_container:/data/db
+  eureka-server:
+    image: vimpost/eureka-server:0.0.1-SNAPSHOT
+    container_name: eureka-server
+    ports:
+      - 8761:8761
+  config-server:
+    image: vimpost/config-server:0.0.1-SNAPSHOT
+    container_name: config-server
+    volumes:
+      - ./config-data:/var/config-data
+    environment:
+      - JAVA_OPTS=
+         -DEUREKA_SERVER=http://eureka-server:8761/eureka
+    depends_on:
+      - eureka-server
+    ports:
+      - 8888:8888
+  microservice-account:
+    image: vimpost/microservice-account:0.0.1-SNAPSHOT
+    container_name: microservice-account
+    restart: on-failure
+    environment:
+      - JAVA_OPTS=
+        -DEUREKA_SERVER=http://eureka-server:8761/eureka
+        -DCONFIG_SERVER=http://config-server:8888
+    depends_on:
+      - config-server
+      - eureka-server
+      - mongodb
+    ports:
+      - 8080:8080
+  microservice-product:
+    image: vimpost/microservice-product:0.0.1-SNAPSHOT
+    container_name: microservice-product
+    restart: on-failure
+    environment:
+      - JAVA_OPTS=
+        -DEUREKA_SERVER=http://eureka-server:8761/eureka
+        -DCONFIG_SERVER=http://config-server:8888
+    depends_on:
+      - config-server
+      - eureka-server
+      - mongodb
+    ports:
+      - 8080:8080
+volumes:
+  mongodb_data_container:
