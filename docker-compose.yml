@@ -40,7 +40,7 @@ services:
       - eureka-server
       - mongodb
     ports:
-      - 8080:8080
+      - 8091:8091
   microservice-product:
     image: vimpost/microservice-product:0.0.1-SNAPSHOT
     container_name: microservice-product
@@ -54,6 +54,6 @@ services:
       - eureka-server
       - mongodb
     ports:
-      - 8080:8080
+      - 8092:8092
 volumes:
   mongodb_data_container:
